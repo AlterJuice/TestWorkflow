@@ -34,6 +34,12 @@ jobs:
         with:
           ref: ${{ inputs.sha || github.ref }}
 
+      - name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+          checkout_path: ${{ github.workspace }}
+
       - name: Mock Lint and Test
         run: |
           echo "Testing branch: $CI_COMMIT_BRANCH"

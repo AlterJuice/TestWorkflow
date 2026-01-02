@@ -44,7 +44,6 @@ jobs:
           fi
 
   slash-run-checks:
-    name: "🛡️ Quality Gate" # Parent name MUST match child job name for easier tracking
     needs: authorize
     if: github.event_name == 'pull_request' || contains(github.event.comment.body, '/run-checks')
     uses: ./.github/workflows/code-quality-checks.yml
