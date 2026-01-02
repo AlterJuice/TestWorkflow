@@ -35,6 +35,15 @@ jobs:
     environment: ${{ inputs.target == 'internal' && 'Google-Play-Internal' || 'Firebase-Debug' }}
     
     steps:
+      - name: GitHub Deployments
+        uses: bobheadxi/deployments@v1.5.0
+        id: deployment
+        with:
+          step: start
+          token: ${{ github.token }}
+          env: ${{ inputs.target }}
+          ref: ${{ inputs.sha || github.sha }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -46,3 +55,13 @@ jobs:
           echo "Commit SHA: ${{ inputs.sha }}"
           sleep 10
           echo "Deployment successful! 🚀"
+
+      - name: Update Deployment Status
+        uses: bobheadxi/deployments@v1.5.0
+        if: always()
+        with:
+          step: finish
+          token: ${{ github.token }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env: ${{ steps.deployment.outputs.env }}
