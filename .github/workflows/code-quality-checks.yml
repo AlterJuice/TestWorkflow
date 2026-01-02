@@ -29,15 +29,16 @@ jobs:
         with:
           ref: ${{ inputs.sha || github.ref }}
 
+      # 1. Створюємо статус PENDING на початку
       - name: Set Pending Status
         if: inputs.sha != ''
-        uses: myrotas/github-status-updater@v2
+        uses: guibranco/github-status-action-v2@v1.1.13
         with:
-          status: "pending"
+          authToken: ${{ github.token }}
           context: "🛡️ Quality Gate"
-          description: "Checks are in progress..."
+          description: "Checks are running, please wait..."
+          state: "pending"
           sha: ${{ inputs.sha }}
-          token: ${{ github.token }}
 
       - name: Upload SARIF to GitHub
         uses: github/codeql-action/upload-sarif@v4
@@ -54,10 +55,11 @@ jobs:
 
       - name: Set Final Status
         if: always() && inputs.sha != ''
-        uses: myrotas/github-status-updater@v2
+        uses: guibranco/github-status-action-v2@v1.1.13
         with:
-          status: ${{ job.status }} # Автоматично підхопить success або failure
+          authToken: ${{ github.token }}
           context: "🛡️ Quality Gate"
-          description: "Linting and Tests finished"
+          description: "Linting and Tests finished successfully"
+          # job.status повертає: success, failure або cancelled
+          state: ${{ job.status }}
           sha: ${{ inputs.sha }}
-          token: ${{ github.token }}
