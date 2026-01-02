@@ -16,6 +16,7 @@ permissions:
   pull-requests: write
   statuses: write  # ЦЕ КРИТИЧНО ДЛЯ ОНОВЛЕННЯ ГАЛОЧОК
   deployments: write
+  security-events: write  # ОБОВ'ЯЗКОВО ДЛЯ upload-sarif
 
 jobs:
   authorize:
