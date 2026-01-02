@@ -54,3 +54,19 @@ jobs:
           sha: ${{ inputs.sha || github.sha }}
           description: "Analysis finished with status: ${{ job.status }}"
           target_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Publish Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: lint-report.html
+          retention-days: 1
+
+      - name: Add Report Link to Summary
+        if: always()
+        run: |
+          echo "### 📊 Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Статус:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [Завантажити HTML звіт з артефактів](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
