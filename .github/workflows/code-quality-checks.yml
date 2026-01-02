@@ -23,17 +23,21 @@ jobs:
     env:
       CI_COMMIT_BRANCH: ${{ inputs.branch_name || github.ref_name }}
     steps:
-
-      - name: Identity Check
-        run: |
-          echo "Current SHA in Action: $(git rev-parse HEAD)"
-          echo "Expected SHA from input: ${{ inputs.sha }}"
-          echo "Is detached HEAD: $(git rev-parse --is-shallow-checkout)"
           
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.sha || github.ref }}
+
+      - name: Set Pending Status
+        if: inputs.sha != ''
+        uses: myrotas/github-status-updater@v2
+        with:
+          status: "pending"
+          context: "🛡️ Quality Gate"
+          description: "Checks are in progress..."
+          sha: ${{ inputs.sha }}
+          token: ${{ github.token }}
 
       - name: Upload SARIF to GitHub
         uses: github/codeql-action/upload-sarif@v4
@@ -47,3 +51,13 @@ jobs:
           echo "Running on SHA: ${{ inputs.sha || github.sha }}"
           sleep 5
           echo "Linting complete. Tests passed!"
+
+      - name: Set Final Status
+        if: always() && inputs.sha != ''
+        uses: myrotas/github-status-updater@v2
+        with:
+          status: ${{ job.status }} # Автоматично підхопить success або failure
+          context: "🛡️ Quality Gate"
+          description: "Linting and Tests finished"
+          sha: ${{ inputs.sha }}
+          token: ${{ github.token }}
