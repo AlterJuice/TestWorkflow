@@ -2,6 +2,7 @@ name: "🔎 Code Quality Checks"
 
 permissions:
   statuses: write  # ЦЕ КРИТИЧНО ДЛЯ ОНОВЛЕННЯ ГАЛОЧОК
+  security-events: write  # ОБОВ'ЯЗКОВО ДЛЯ upload-sarif
 
 
 on:
@@ -35,7 +36,7 @@ jobs:
           ref: ${{ inputs.sha || github.ref }}
 
       - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
           checkout_path: ${{ github.workspace }}
