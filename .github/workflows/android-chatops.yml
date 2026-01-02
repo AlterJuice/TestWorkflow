@@ -45,7 +45,9 @@ jobs:
 
   slash-run-checks:
     needs: authorize
-    if: github.event_name == 'pull_request' || contains(github.event.comment.body, '/run-checks')
+    if: >-
+      contains(github.event.comment.body, '/run-checks') || 
+      github.event.inputs.command == '/run-checks'
     uses: ./.github/workflows/code-quality-checks.yml
     with:
       sha: ${{ needs.authorize.outputs.sha }}
@@ -53,7 +55,9 @@ jobs:
 
   slash-deploy-qa:
     needs: authorize
-    if: contains(github.event.comment.body, '/deploy-qa') || github.event.inputs.command == '/deploy-qa'
+    if: >-
+      contains(github.event.comment.body, '/deploy-qa') || 
+      github.event.inputs.command == '/deploy-qa'
     uses: ./.github/workflows/deploy.yml
     with:
       target: 'debug'

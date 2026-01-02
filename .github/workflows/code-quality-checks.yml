@@ -28,13 +28,12 @@ jobs:
           ref: ${{ inputs.sha || github.ref }}
 
       - name: Set Pending Status
-        if: inputs.sha != ''
         uses: guibranco/github-status-action-v2@v1.1.13
         with:
           authToken: ${{ github.token }}
           context: "Quality Gate (Status checks)"
           state: "pending"
-          sha: ${{ inputs.sha }}
+          sha: ${{ inputs.sha || github.sha }}
           description: "Analysis is running..."
           target_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
@@ -46,12 +45,12 @@ jobs:
           echo "Linting complete. Tests passed!"
 
       - name: Set Final Status
-        if: always() && inputs.sha != ''
+        if: always()
         uses: guibranco/github-status-action-v2@v1.1.13
         with:
           authToken: ${{ github.token }}
           context: "Quality Gate (Status checks)"
           state: ${{ job.status }}
-          sha: ${{ inputs.sha }}
+          sha: ${{ inputs.sha || github.sha }}
           description: "Analysis finished with status: ${{ job.status }}"
           target_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
