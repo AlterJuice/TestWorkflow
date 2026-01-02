@@ -1,5 +1,9 @@
 name: "🔎 Code Quality Checks"
 
+permissions:
+  statuses: write  # ЦЕ КРИТИЧНО ДЛЯ ОНОВЛЕННЯ ГАЛОЧОК
+
+
 on:
   workflow_dispatch:
   workflow_call:

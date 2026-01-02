@@ -10,13 +10,16 @@ on:
         required: true
         type: choice
         options: [/run-checks, /deploy-qa, /deploy-release]
-  pull_request:
-    types: [opened, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write  # ЦЕ КРИТИЧНО ДЛЯ ОНОВЛЕННЯ ГАЛОЧОК
+  deployments: write
 
 jobs:
   authorize:
     if: >-
-      github.event_name == 'pull_request' || 
       github.event_name == 'workflow_dispatch' || 
       (github.event.issue.pull_request && startsWith(github.event.comment.body, '/'))
     runs-on: ubuntu-latest
