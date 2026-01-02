@@ -58,6 +58,7 @@ jobs:
     needs: authorize
     runs-on: ubuntu-latest
     if: github.event_name == 'issue_comment' && needs.authorize.outputs.command != ''
+    steps:
       - name: Add reaction and reply
         uses: peter-evans/create-or-update-comment@v3
         with:
