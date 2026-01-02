@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Custom Android Linter",
+          "rules": [
+            {
+              "id": "LT001",
+              "name": "HardcodedText",
+              "shortDescription": {
+                "text": "Уникайте хардкоду рядків."
+              },
+              "fullDescription": {
+                "text": "Використовуйте ресурси strings.xml замість прямого написання тексту в коді."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "LT001",
+          "message": {
+            "text": "Знайдено хардкод рядка: 'Hello World'. Перенесіть його в ресурси."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "app/src/main/java/com/example/MainActivity.kt"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 25
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
