@@ -11,6 +11,12 @@ on:
         type: choice
         options: [/run-checks, /deploy-qa, /deploy-release]
 
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write  # ЦЕ КРИТИЧНО ДЛЯ ОНОВЛЕННЯ ГАЛОЧОК
+  deployments: write
+
 jobs:
   authorize:
     if: >-
