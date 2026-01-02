@@ -35,17 +35,24 @@ jobs:
           else
             CMD=$(echo "${{ github.event.comment.body }}" | awk '{print $1}')
           fi
-          echo "command=$CMD" >> $GITHUB_OUTPUT
-          echo "Command: $CMD"
+          
+          ALLOWED="/run-checks /deploy-qa /deploy-release"
+          
+          if [[ $ALLOWED =~ (^|[[:space:]])"$CMD"($|[[:space:]]) ]]; then
+            echo "command=$CMD" >> $GITHUB_OUTPUT
+            echo "✅ Valid command: $CMD"
+          else
+            echo "command=" >> $GITHUB_OUTPUT
+            echo "⚠️ Unknown command: $CMD. Workflow will stop here."
+            exit 0
+          fi
 
       - id: resolve-git
+        if: steps.parse-command.outputs.command != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
-            echo "branch=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+          if [[ "${{ github.event_name }}" == "issue_comment" ]]; then
             PR_DATA=$(gh pr view ${{ github.event.issue.number }} --repo ${{ github.repository }} --json headRefOid,headRefName -q '.')
             echo "sha=$(echo $PR_DATA | jq -r .headRefOid)" >> $GITHUB_OUTPUT
             echo "branch=$(echo $PR_DATA | jq -r .headRefName)" >> $GITHUB_OUTPUT
@@ -68,6 +75,7 @@ jobs:
             > [!NOTE]
             > Виконується команда: `${{ needs.authorize.outputs.command }}`
             > Гілка: `${{ needs.authorize.outputs.branch }}`
+            > SHA: `${{ needs.authorize.outputs.sha }}`
             > [Переглянути лог](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
   slash-run-checks:
