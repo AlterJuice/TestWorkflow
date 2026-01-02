@@ -43,6 +43,21 @@ jobs:
             echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
 
+  reply-to-comment:
+    needs: authorize
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment'
+    steps:
+      - name: Add reaction and reply
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          reactions: 'rocket'
+          body: |
+            > [!NOTE]
+            > Перевірка запущена для коміту `${{ needs.authorize.outputs.sha }}`.
+            > Результати з'являться в статусах нижче. [Переглянути лог](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
   slash-run-checks:
     needs: authorize
     if: >-
