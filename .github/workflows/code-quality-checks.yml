@@ -22,6 +22,13 @@ jobs:
     env:
       CI_COMMIT_BRANCH: ${{ inputs.branch_name || github.ref_name }}
     steps:
+
+      - name: Identity Check
+        run: |
+          echo "Current SHA in Action: $(git rev-parse HEAD)"
+          echo "Expected SHA from input: ${{ inputs.sha }}"
+          echo "Is detached HEAD: $(git rev-parse --is-shallow-checkout)"
+          
       - name: Checkout
         uses: actions/checkout@v4
         with:
