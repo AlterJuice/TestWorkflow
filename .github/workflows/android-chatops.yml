@@ -24,10 +24,21 @@ jobs:
       (github.event.issue.pull_request && startsWith(github.event.comment.body, '/'))
     runs-on: ubuntu-latest
     outputs:
-      sha: ${{ steps.resolve.outputs.sha }}
-      branch: ${{ steps.resolve.outputs.branch }}
+      sha: ${{ steps.resolve-git.outputs.sha }}
+      branch: ${{ steps.resolve-git.outputs.branch }}
+      command: ${{ steps.parse-command.outputs.command }}
     steps:
-      - id: resolve
+      - id: parse-command
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            CMD="${{ github.event.inputs.command }}"
+          else
+            CMD=$(echo "${{ github.event.comment.body }}" | awk '{print $1}')
+          fi
+          echo "command=$CMD" >> $GITHUB_OUTPUT
+          echo "Command: $CMD"
+
+      - id: resolve-git
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -46,8 +57,7 @@ jobs:
   reply-to-comment:
     needs: authorize
     runs-on: ubuntu-latest
-    if: github.event_name == 'issue_comment'
-    steps:
+    if: github.event_name == 'issue_comment' && needs.authorize.outputs.command != ''
       - name: Add reaction and reply
         uses: peter-evans/create-or-update-comment@v3
         with:
@@ -55,14 +65,13 @@ jobs:
           reactions: 'rocket'
           body: |
             > [!NOTE]
-            > Перевірка запущена для коміту `${{ needs.authorize.outputs.sha }}`.
-            > Результати з'являться в статусах нижче. [Переглянути лог](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            > Виконується команда: `${{ needs.authorize.outputs.command }}`
+            > Гілка: `${{ needs.authorize.outputs.branch }}`
+            > [Переглянути лог](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
   slash-run-checks:
     needs: authorize
-    if: >-
-      contains(github.event.comment.body, '/run-checks') || 
-      github.event.inputs.command == '/run-checks'
+    if: needs.authorize.outputs.command == '/run-checks'
     uses: ./.github/workflows/code-quality-checks.yml
     with:
       sha: ${{ needs.authorize.outputs.sha }}
@@ -70,9 +79,7 @@ jobs:
 
   slash-deploy-qa:
     needs: authorize
-    if: >-
-      contains(github.event.comment.body, '/deploy-qa') || 
-      github.event.inputs.command == '/deploy-qa'
+    if: needs.authorize.outputs.command == '/deploy-qa'
     uses: ./.github/workflows/deploy.yml
     with:
       target: 'debug'

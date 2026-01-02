@@ -21,12 +21,6 @@ jobs:
     env:
       CI_COMMIT_BRANCH: ${{ inputs.branch_name || github.ref_name }}
     steps:
-          
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.sha || github.ref }}
-
       - name: Set Pending Status
         uses: guibranco/github-status-action-v2@v1.1.13
         with:
@@ -36,6 +30,11 @@ jobs:
           sha: ${{ inputs.sha || github.sha }}
           description: "Analysis is running..."
           target_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.ref }}
 
       - name: Mock Lint and Test
         run: |
@@ -62,11 +61,3 @@ jobs:
           name: lint-report
           path: lint-report.html
           retention-days: 1
-
-      - name: Add Report Link to Summary
-        if: always()
-        run: |
-          echo "### 📊 Quality Gate Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Статус:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 [Завантажити HTML звіт з артефактів](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts)" >> $GITHUB_STEP_SUMMARY
