@@ -13,6 +13,12 @@ on:
   pull_request:
     types: [opened, reopened]
 
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write  # ЦЕ КРИТИЧНО ДЛЯ ОНОВЛЕННЯ ГАЛОЧОК
+  deployments: write
+
 jobs:
   authorize:
     if: >-
