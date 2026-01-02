@@ -38,12 +38,6 @@ jobs:
           description: "Analysis is running..."
           target_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
-      - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: results.sarif
-          checkout_path: ${{ github.workspace }}
-
       - name: Mock Lint and Test
         run: |
           echo "Testing branch: $CI_COMMIT_BRANCH"
