@@ -1,9 +1,7 @@
 name: "🔎 Code Quality Checks"
 
 permissions:
-  statuses: write  # ЦЕ КРИТИЧНО ДЛЯ ОНОВЛЕННЯ ГАЛОЧОК
-  security-events: write  # ОБОВ'ЯЗКОВО ДЛЯ upload-sarif
-
+  statuses: write
 
 on:
   workflow_dispatch:
@@ -18,7 +16,7 @@ on:
 
 jobs:
   code-quality-checks:
-    name: "🛡️ Quality Gate" # Exact name for Branch Protection
+    name: "🛡️ Quality Gate"
     runs-on: ubuntu-latest
     env:
       CI_COMMIT_BRANCH: ${{ inputs.branch_name || github.ref_name }}
@@ -34,11 +32,10 @@ jobs:
         uses: guibranco/github-status-action-v2@v1.1.13
         with:
           authToken: ${{ github.token }}
-          context: "chatops-quality-gate"  # Змінено на унікальний текст
+          context: "🛡️ Quality Gate (Status checks)"
           state: "pending"
           sha: ${{ inputs.sha }}
           description: "Analysis is running..."
-          # Додаємо посилання, щоб target_url не був порожнім
           target_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Upload SARIF to GitHub
@@ -59,7 +56,7 @@ jobs:
         uses: guibranco/github-status-action-v2@v1.1.13
         with:
           authToken: ${{ github.token }}
-          context: "chatops-quality-gate"  # Має бути таким самим
+          context: "🛡️ Quality Gate (Status checks)"
           state: ${{ job.status }}
           sha: ${{ inputs.sha }}
           description: "Analysis finished with status: ${{ job.status }}"
