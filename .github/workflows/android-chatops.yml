@@ -1,0 +1,59 @@
+name: 🤖 Android ChatOps
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command'
+        required: true
+        type: choice
+        options: [/run-checks, /deploy-qa, /deploy-release]
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  authorize:
+    if: >-
+      github.event_name == 'pull_request' || 
+      github.event_name == 'workflow_dispatch' || 
+      (github.event.issue.pull_request && startsWith(github.event.comment.body, '/'))
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.resolve.outputs.sha }}
+      branch: ${{ steps.resolve.outputs.branch }}
+    steps:
+      - id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "sha=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.event.pull_request.head.ref }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            PR_DATA=$(gh pr view ${{ github.event.issue.number }} --repo ${{ github.repository }} --json headRefOid,headRefName -q '.')
+            echo "sha=$(echo $PR_DATA | jq -r .headRefOid)" >> $GITHUB_OUTPUT
+            echo "branch=$(echo $PR_DATA | jq -r .headRefName)" >> $GITHUB_OUTPUT
+          else
+            echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+  slash-run-checks:
+    name: "🛡️ Quality Gate" # Parent name MUST match child job name for easier tracking
+    needs: authorize
+    if: github.event_name == 'pull_request' || contains(github.event.comment.body, '/run-checks')
+    uses: ./.github/workflows/code-quality-checks.yml
+    with:
+      sha: ${{ needs.authorize.outputs.sha }}
+      branch_name: ${{ needs.authorize.outputs.branch }}
+
+  slash-deploy-qa:
+    needs: authorize
+    if: contains(github.event.comment.body, '/deploy-qa') || github.event.inputs.command == '/deploy-qa'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      target: 'debug'
+      sha: ${{ needs.authorize.outputs.sha }}
+      branch_name: ${{ needs.authorize.outputs.branch }}

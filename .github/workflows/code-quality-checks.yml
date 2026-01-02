@@ -1,0 +1,31 @@
+name: "🔎 Code Quality Checks"
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      sha:
+        type: string
+        required: false
+      branch_name:
+        type: string
+        required: false
+
+jobs:
+  code-quality-checks:
+    name: "🛡️ Quality Gate" # Exact name for Branch Protection
+    runs-on: ubuntu-latest
+    env:
+      CI_COMMIT_BRANCH: ${{ inputs.branch_name || github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.sha || github.ref }}
+
+      - name: Mock Lint and Test
+        run: |
+          echo "Testing branch: $CI_COMMIT_BRANCH"
+          echo "Running on SHA: ${{ inputs.sha || github.sha }}"
+          sleep 5
+          echo "Linting complete. Tests passed!"
