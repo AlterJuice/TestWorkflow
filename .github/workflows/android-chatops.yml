@@ -75,10 +75,8 @@ jobs:
           reactions: 'rocket'
           body: |
             > [!NOTE]
-            > Виконується команда: `${{ needs.authorize.outputs.command }}`
-            > Гілка: `${{ needs.authorize.outputs.branch }}`
-            > SHA: `${{ needs.authorize.outputs.sha }}`
-            > [Переглянути лог](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            > [Запущено](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}): `${{ steps.parse-command.outputs.command }}` на гілці `${{ steps.resolve-git.outputs.branch }}`.
+            > SHA: `${{ steps.resolve-git.outputs.sha }}`
 
   slash-run-checks:
     needs: authorize
