@@ -14,12 +14,6 @@ on:
       target:
         required: true
         type: string
-      sha:
-        required: true
-        type: string
-      branch_name:
-        type: string
-        required: false
 
 permissions:
   contents: read        # Для чекауту коду
