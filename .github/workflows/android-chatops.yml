@@ -75,8 +75,8 @@ jobs:
           reactions: 'rocket'
           body: |
             > [!NOTE]
-            > [Запущено](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}): `${{ steps.parse-command.outputs.command }}` на гілці `${{ steps.resolve-git.outputs.branch }}`.
-            > SHA: `${{ steps.resolve-git.outputs.sha }}`
+            > [Запущено](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}): `${{ needs.authorize.outputs.command }}` на гілці `${{ needs.authorize.outputs.branch }}`.
+            > SHA: `${{ needs.authorize.outputs.sha }}`            
 
   slash-run-checks:
     needs: authorize
